@@ -1,0 +1,19 @@
+{
+  "name": "sollet-wallet-rescue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "glob": "^8.0.3",
+    "leveldb-zlib": "^1.2.0"
+  },
+  "bin": {
+    "sollet-wallet-rescue": "./cli.js"
+  },
+  "scripts": {
+    "start": "./cli.js"
+  }
+}
