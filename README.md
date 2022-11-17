@@ -4,6 +4,8 @@ Use this script to recover the seed phrases from you Sollet wallets. It works by
 
 ## Usage
 
-```
-npx sollet-wallet-rescue
-```
+1. Close any browsers that you have open.
+2. Run the script
+   ```
+   npx sollet-wallet-rescue
+   ```
