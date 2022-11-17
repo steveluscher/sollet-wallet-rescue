@@ -1,6 +1,6 @@
 # Sollet Wallet Rescue
 
-Use this script to recover the seed phrases from you Sollet wallets. It works by scanning the local storage databases of browsers on your computer.
+Use this script to recover the seed phrases from your Sollet wallets. It works by scanning the local storage databases of browsers on your computer.
 
 ## Usage
 

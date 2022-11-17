@@ -78,7 +78,7 @@ async function main() {
     }`
   );
   foundKeyMaterial.forEach((keyMaterial) => {
-    // TODO: Decrypt it and show the seed phrase.
+    // TODO: Prompt for a password, decrypt the key, and show the seed phrase.
     console.info(keyMaterial);
   });
 }
