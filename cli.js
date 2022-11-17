@@ -1,8 +1,38 @@
 #!/usr/bin/env node
+const { decode } = require("bs58");
+const { pbkdf2Sync } = require("crypto");
 const glob = require("glob");
 const { LevelDB } = require("leveldb-zlib");
 const path = require("path");
+const prompt = require("prompt");
 const os = require("os");
+const { secretbox } = require("tweetnacl");
+
+function decryptKeyMaterial({
+  digest,
+  encrypted: encodedEncrypted,
+  iterations,
+  nonce: encodedNonce,
+  password,
+  salt: encodedSalt,
+}) {
+  const encrypted = decode(encodedEncrypted);
+  const nonce = decode(encodedNonce);
+  const salt = decode(encodedSalt);
+  const key = pbkdf2Sync(
+    password,
+    salt,
+    iterations,
+    secretbox.keyLength,
+    digest
+  );
+  const plaintext = secretbox.open(encrypted, nonce, key);
+  if (!plaintext) {
+    throw new Error("Incorrect password");
+  }
+  const decodedPlaintext = Buffer.from(plaintext).toString();
+  return JSON.parse(decodedPlaintext);
+}
 
 async function getCandidatePaths() {
   return new Promise((resolve, reject) => {
@@ -52,7 +82,10 @@ async function getSolletKeyMaterialFromDb(dbPath) {
       values: true,
     })) {
       if (key.includes("sollet.io\x00\x01locked")) {
-        return JSON.parse(value.slice(1));
+        return {
+          dbPath,
+          keyMaterial: JSON.parse(value.slice(1)),
+        };
       }
     }
     console.info("No Sollet data found in", dbPath);
@@ -77,10 +110,28 @@ async function main() {
       foundKeyMaterial.length > 1 ? "s" : ""
     }`
   );
-  foundKeyMaterial.forEach((keyMaterial) => {
-    // TODO: Prompt for a password, decrypt the key, and show the seed phrase.
-    console.info(keyMaterial);
-  });
+  for (const { dbPath, keyMaterial } of foundKeyMaterial) {
+    while (true) {
+      const { password } = await prompt.get({
+        properties: {
+          password: {
+            description: `Enter passphrase for Sollet key from ${dbPath}`,
+            hidden: true,
+          },
+        },
+      });
+      try {
+        const mnemonicAndSeed = decryptKeyMaterial({
+          password,
+          ...keyMaterial,
+        });
+        console.info(mnemonicAndSeed);
+        break;
+      } catch (e) {
+        console.error(e.message);
+      }
+    }
+  }
 }
 
 main();
