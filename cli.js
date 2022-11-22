@@ -43,7 +43,7 @@ async function getCandidatePaths() {
         "Local Storage",
         "leveldb"
       ),
-      { strict: false, silent: true },
+      { strict: false, silent: true, dot: true },
       (err, matches) => {
         if (err) {
           reject(err);
@@ -61,6 +61,8 @@ function getLocalStoragePathPrefix() {
       return "%LOCALAPPDATA%";
     case "darwin":
       return path.resolve(os.homedir(), "Library", "Application Support");
+    case "linux":
+      return path.resolve(os.homedir(), ".config");
     default:
       return os.homedir();
   }
